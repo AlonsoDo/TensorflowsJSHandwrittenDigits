@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Recognition Of Handwritten Digits</title>
+    <script src="js/jquery-2.2.1.min.js"></script>
+    <script type="text/javascript">        
+        
+        var myCanvas;
+        var ctx;
+        var paint;
+        
+        $(document).ready(function(){
+            
+            myCanvas = document.getElementById('myCanvas');
+            ctx = myCanvas.getContext('2d');
+            paint = false;
+            
+            window.onmousemove = draw;
+            window.onmousedown = mousedown;
+            window.onmouseup = mouseup;
+            
+            function draw(e){
+                var rect =  myCanvas.getBoundingClientRect();
+                if (paint){
+                    ctx.fillRect(e.x - rect.left,e.y - rect.top,15,15);
+                }                
+            }
+            
+            function mousedown(e){
+                paint = true;
+            }
+            
+            function mouseup(e){
+                paint = false;
+            }              
+            
+        });
+        
+        function cleanup(){            
+            ctx.clearRect(0,0,280,280);
+        }
+        
+        function predict(){            
+            
+            var digit = new Image();
+            digit.src = myCanvas.toDataURL();
+            myCanvas.width = 28;
+            myCanvas.height = 28;
+            
+            ctx.drawImage(digit,4,4,20,20);
+            document.getElementById('img').src = myCanvas.toDataURL();
+            
+            var imgData = ctx.getImageData(0, 0, 28, 28);
+            var imgBlack = [];
+            for (var i = 0; i < imgData.data.length; i += 4) {
+                if (imgData.data[i+3] === 255){
+                    imgBlack.push(1);
+                }else{
+                    imgBlack.push(0);
+                }
+            }
+            var dataStr = JSON.stringify(imgBlack);
+            console.log(dataStr);
+            
+            myCanvas.width = 280;
+            myCanvas.height = 280;
+            
+            ctx.drawImage(digit,0,0,280,280);
+            
+            $.ajax({
+                statusCode:{500:function(){
+                        console.log('Error with the server');                
+                    }
+                },
+                url: 'http://localhost:4000/',                    
+                type: 'post',
+                data: {imgData:imgBlack},
+                success: function(data){                    
+                    $('#status2').text(data);
+                },                    
+                error: function(error){
+                    console.log('Error with the server');                                    
+                }
+            });            
+            
+        }  
+        
+    </script>
+</head>
+<body>
+    <table>
+        <tr>
+            <th>
+                <div style="float:left;">
+                    <h1 style="font-family: Arial, Helvetica, sans-serif; font-weight: bold;">Recognition Of Handwritten Digits</h1>
+                    <canvas id="myCanvas" width="280" height="280" style="float:left; border:1px solid black;"></canvas>
+                    <button style="float:left; margin-left:20px; font-family:Arial,Helvetica,sans-serif; font-size:20px; font-weight:bold;" onclick="cleanup()">Clean up</button>
+                    <button style="float:left; margin-left:20px; font-family:Arial,Helvetica,sans-serif; font-size:20px; font-weight:bold;" onclick="predict()">Predict</button>
+                    <img id="img" style="visibility:hidden;">
+                </div>
+            </th>
+        </tr>
+        <tr>
+            <th>
+                <div style="float:left;">
+                    <h1 id="status1" style="float:left; font-family: Arial, Helvetica, sans-serif; font-weight: bold;">Matched Digit...</h1>
+                    <h1 id="status2" style="float:left; font-family: Arial, Helvetica, sans-serif; font-weight: bold;">...</h1>
+                </div>
+             </th>
+        </tr>    
+    </table>
+</body>
+</html>

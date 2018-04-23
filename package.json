@@ -1,0 +1,26 @@
+{
+  "name": "RecognitionOfHandwrittenDigits",
+  "version": "0.0.1",
+  "description": "Web App For Predict written digit on html5 canva, RESTful Api",
+  "main": "index.html",
+  "keywords": [
+    "Mnist",
+    "Web",
+    "App",
+    "Api",
+    "Digits"
+  ],
+  "author": "ApoloSoft",
+  "license": "Free",
+  "engines": {
+    "node": "4.8.4",
+    "npm": "1.4.28"
+  },
+  "dependencies": {
+    "@tensorflow/tfjs": "^0.9.1",
+    "async": "^2.6.0",
+    "body-parser": "^1.18.2",
+    "express": "^4.15.3",
+    "mnist": "^1.1.0"
+  }
+}
